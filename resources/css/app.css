@@ -1,0 +1,25 @@
+/* ── Third-party plugin CSS ─────────────────────────────────────── */
+@import 'tom-select/dist/css/tom-select.bootstrap4.css';
+@import 'flatpickr/dist/flatpickr.min.css';
+
+/* ── TomSelect sizing / alignment tweaks for Bootstrap 4 forms ──── */
+.ts-wrapper {
+  width: 100%;
+}
+
+.ts-wrapper.form-control-sm .ts-control,
+.ts-wrapper .ts-control {
+  min-height: calc(1.5em + 0.5rem + 2px);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.2rem;
+}
+
+.ts-wrapper .ts-dropdown {
+  font-size: 0.875rem;
+}
+
+/* ── Flatpickr calendar z-index (sits above AdminLTE sidebar) ─────── */
+.flatpickr-calendar {
+  z-index: 9999 !important;
+}
