@@ -17,7 +17,8 @@ class Branch extends Model
     ];
 
     protected $casts = [
-        'is_main' => 'boolean',
+        'is_main'    => 'boolean',
+        'sort_order' => 'integer',
     ];
 
     public function scopeActive($query)
@@ -28,5 +29,60 @@ class Branch extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'branch_user');
+    }
+
+    public function setting()
+    {
+        return $this->hasOne(BranchSetting::class);
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    public function staff()
+    {
+        return $this->hasMany(Staff::class);
+    }
+
+    public function classes()
+    {
+        return $this->hasMany(ClassModel::class);
+    }
+
+    public function academicYears()
+    {
+        return $this->hasMany(AcademicYear::class);
+    }
+
+    public function buildings()
+    {
+        return $this->hasMany(Building::class);
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function feeTypes()
+    {
+        return $this->hasMany(FeeType::class);
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(StudentInvoice::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function printTemplates()
+    {
+        return $this->hasMany(PrintTemplate::class);
     }
 }

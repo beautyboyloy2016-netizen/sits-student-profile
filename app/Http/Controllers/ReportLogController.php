@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ReportLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class ReportLogController extends Controller
@@ -33,7 +35,7 @@ class ReportLogController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'report_type' => 'required|string',
+            'report_type' => ['required', 'string', Rule::in(ReportLog::TYPES)],
             'report_title' => 'nullable|string|max:255',
             'filters' => 'nullable',
             'export_format' => 'required|in:pdf,excel,csv,print,view',
@@ -43,9 +45,9 @@ class ReportLogController extends Controller
             'branch_id'    => current_branch_id(),
             'report_type'  => $validated['report_type'],
             'report_title' => $validated['report_title'] ?? null,
-            'filters'      => is_array($validated['filters'] ?? null) ? json_encode($validated['filters']) : ($validated['filters'] ?? null),
+            'filters'      => $validated['filters'] ?? null,
             'export_format'=> $validated['export_format'],
-            'generated_by' => auth()->id(),
+            'generated_by' => Auth::id(),
             'generated_at' => now(),
         ]);
 

@@ -7,6 +7,7 @@ use App\Models\Gender;
 use App\Http\Requests\Staff\StoreStaffRequest;
 use App\Http\Requests\Staff\UpdateStaffRequest;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class StaffController extends Controller
@@ -51,18 +52,23 @@ class StaffController extends Controller
 
     public function store(StoreStaffRequest $request)
     {
+        $branchId = current_branch_id();
+
         $validated = $request->validate([
-            'staff_code' => 'required|string|unique:staff',
+            'staff_code' => [
+                'required', 'string', 'max:255',
+                Rule::unique('staff')->where(fn ($q) => $q->where('branch_id', $branchId)),
+            ],
             'name_kh' => 'required|string|max:255',
             'name_en' => 'nullable|string|max:255',
             'gender_id' => 'nullable|exists:genders,id',
             'phone' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255|unique:staff',
+            'email' => 'nullable|email|max:255|unique:staff,email',
             'position' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive',
         ]);
 
-        $validated['branch_id'] = current_branch_id();
+        $validated['branch_id'] = $branchId;
 
         Staff::create($validated);
         flash()->success('Staff created successfully.');
@@ -83,8 +89,15 @@ class StaffController extends Controller
 
     public function update(UpdateStaffRequest $request, Staff $staff)
     {
+        $branchId = $staff->branch_id ?? current_branch_id();
+
         $validated = $request->validate([
-            'staff_code' => 'required|string|unique:staff,staff_code,' . $staff->id,
+            'staff_code' => [
+                'required', 'string', 'max:255',
+                Rule::unique('staff')
+                    ->where(fn ($q) => $q->where('branch_id', $branchId))
+                    ->ignore($staff->id),
+            ],
             'name_kh' => 'required|string|max:255',
             'name_en' => 'nullable|string|max:255',
             'gender_id' => 'nullable|exists:genders,id',

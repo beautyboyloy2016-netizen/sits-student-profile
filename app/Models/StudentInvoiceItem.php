@@ -14,6 +14,12 @@ class StudentInvoiceItem extends Model
 
     protected $fillable = ['invoice_id', 'fee_type_id', 'description', 'qty', 'unit_price', 'total'];
 
+    protected $casts = [
+        'qty'        => 'integer',
+        'unit_price' => 'decimal:2',
+        'total'      => 'decimal:2',
+    ];
+
     public function invoice() { return $this->belongsTo(StudentInvoice::class); }
 
 

@@ -14,5 +14,12 @@ class FileProtectionRule extends Model
 
     protected $fillable = ['name', 'module', 'allow_download', 'allow_print', 'allow_export', 'watermark_enabled', 'role_id'];
 
+    protected $casts = [
+        'allow_download'    => 'boolean',
+        'allow_print'       => 'boolean',
+        'allow_export'      => 'boolean',
+        'watermark_enabled' => 'boolean',
+    ];
+
     public function role() { return $this->belongsTo(Role::class); }
 }

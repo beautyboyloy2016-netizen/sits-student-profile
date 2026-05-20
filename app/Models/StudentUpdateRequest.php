@@ -14,6 +14,10 @@ class StudentUpdateRequest extends Model
 
     protected $fillable = ['student_id', 'requested_by', 'field_name', 'old_value', 'new_value', 'reason', 'status', 'approved_by', 'approved_at'];
 
+    protected $casts = [
+        'approved_at' => 'datetime',
+    ];
+
     public function student() { return $this->belongsTo(Student::class); }
 
 

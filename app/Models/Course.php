@@ -19,4 +19,7 @@ class Course extends Model
 
     public function classes() { return $this->hasMany(ClassModel::class); }
 
+
+    public function diplomas() { return $this->hasMany(StudentDiploma::class); }
+
 }

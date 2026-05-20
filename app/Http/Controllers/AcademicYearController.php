@@ -6,6 +6,7 @@ use App\Models\AcademicYear;
 use App\Http\Requests\AcademicYear\StoreAcademicYearRequest;
 use App\Http\Requests\AcademicYear\UpdateAcademicYearRequest;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class AcademicYearController extends Controller
@@ -14,6 +15,12 @@ class AcademicYearController extends Controller
     {
         if ($request->ajax()) {
             $data = AcademicYear::latest();
+
+            // Branch isolation
+            $branchId = current_branch_id();
+            if ($branchId) {
+                $data->where('branch_id', $branchId);
+            }
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('is_current_badge', fn($r) => $r->is_current ? '<span class="badge badge-primary">'.__('app.is_current').'</span>' : '')
@@ -46,17 +53,23 @@ class AcademicYearController extends Controller
 
     public function store(StoreAcademicYearRequest $request)
     {
+        $branchId = current_branch_id();
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:academic_years',
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('academic_years')->where(fn ($q) => $q->where('branch_id', $branchId)),
+            ],
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_current' => 'boolean',
             'status' => 'required|in:active,inactive,closed',
         ]);
 
+        $validated['branch_id'] = $branchId;
         $validated['is_current'] = $request->boolean('is_current', false);
         if ($validated['is_current']) {
-            AcademicYear::where('is_current', true)->update(['is_current' => false]);
+            AcademicYear::where('branch_id', $branchId)->where('is_current', true)->update(['is_current' => false]);
         }
 
         AcademicYear::create($validated);
@@ -66,8 +79,15 @@ class AcademicYearController extends Controller
 
     public function update(UpdateAcademicYearRequest $request, AcademicYear $academicYear)
     {
+        $branchId = $academicYear->branch_id ?? current_branch_id();
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:academic_years,name,' . $academicYear->id,
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('academic_years')
+                    ->where(fn ($q) => $q->where('branch_id', $branchId))
+                    ->ignore($academicYear->id),
+            ],
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_current' => 'boolean',
@@ -76,7 +96,10 @@ class AcademicYearController extends Controller
 
         $validated['is_current'] = $request->boolean('is_current', false);
         if ($validated['is_current']) {
-            AcademicYear::where('is_current', true)->where('id', '!=', $academicYear->id)->update(['is_current' => false]);
+            AcademicYear::where('branch_id', $branchId)
+                ->where('is_current', true)
+                ->where('id', '!=', $academicYear->id)
+                ->update(['is_current' => false]);
         }
 
         $academicYear->update($validated);

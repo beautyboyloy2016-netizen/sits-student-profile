@@ -14,6 +14,11 @@ class StudentRoomAssignment extends Model
 
     protected $fillable = ['student_id', 'room_id', 'check_in_date', 'check_out_date', 'status', 'note'];
 
+    protected $casts = [
+        'check_in_date'  => 'date',
+        'check_out_date' => 'date',
+    ];
+
     public function student() { return $this->belongsTo(Student::class); }
 
 

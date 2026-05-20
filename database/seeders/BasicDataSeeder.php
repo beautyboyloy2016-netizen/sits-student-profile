@@ -8,8 +8,6 @@ use App\Models\District;
 use App\Models\Commune;
 use App\Models\Course;
 use App\Models\Level;
-use App\Models\AcademicYear;
-use App\Models\Shift;
 
 class BasicDataSeeder extends Seeder
 {
@@ -48,16 +46,8 @@ class BasicDataSeeder extends Seeder
             Province::firstOrCreate(['code' => $p['code']], $p);
         }
 
-        // Academic Year
-        AcademicYear::firstOrCreate(
-            ['name' => '2025-2026'],
-            ['start_date' => '2025-09-01', 'end_date' => '2026-07-31', 'is_current' => true, 'status' => 'active']
-        );
-
-        // Shifts
-        Shift::firstOrCreate(['name' => 'Morning'], ['start_time' => '07:00:00', 'end_time' => '11:00:00', 'status' => 'active']);
-        Shift::firstOrCreate(['name' => 'Afternoon'], ['start_time' => '13:00:00', 'end_time' => '17:00:00', 'status' => 'active']);
-        Shift::firstOrCreate(['name' => 'Evening'], ['start_time' => '17:30:00', 'end_time' => '21:00:00', 'status' => 'active']);
+        // NOTE: Academic Years are seeded by AcademicYearsShiftsSeeder
+        // NOTE: Shifts are seeded by AcademicYearsShiftsSeeder
 
         // Sample Course
         $course = Course::firstOrCreate(

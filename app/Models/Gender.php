@@ -13,4 +13,18 @@ class Gender extends Model
     protected $table = 'genders';
 
     protected $fillable = ['name_kh', 'name_en', 'sort_order'];
+
+    protected $casts = [
+        'sort_order' => 'integer',
+    ];
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    public function staff()
+    {
+        return $this->hasMany(Staff::class);
+    }
 }

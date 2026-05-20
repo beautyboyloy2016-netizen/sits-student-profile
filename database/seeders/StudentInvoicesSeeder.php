@@ -49,6 +49,7 @@ class StudentInvoicesSeeder extends Seeder
             $balance = $total - $paidAmount;
 
             $invoiceId = DB::table('student_invoices')->insertGetId([
+                'branch_id'       => $student->branch_id,
                 'invoice_no'      => $invoiceNo,
                 'student_id'      => $student->id,
                 'invoice_date'    => $invoiceDate,
@@ -87,6 +88,7 @@ class StudentInvoicesSeeder extends Seeder
                 $paymentNo = 'PAY-' . date('Y') . '-' . str_pad($paymentCounter++, 5, '0', STR_PAD_LEFT);
 
                 DB::table('payments')->insert([
+                    'branch_id'      => $student->branch_id,
                     'payment_no'     => $paymentNo,
                     'invoice_id'     => $invoiceId,
                     'student_id'     => $student->id,

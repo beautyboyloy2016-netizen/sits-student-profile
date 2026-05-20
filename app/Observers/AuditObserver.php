@@ -7,13 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class AuditObserver
 {
+    private ?int $cachedBranchId = null;
+
+    private bool $branchIdResolved = false;
+
     private function branchId(): ?int
     {
-        if (isset($this->_branchId)) {
-            return $this->_branchId;
+        if (! $this->branchIdResolved) {
+            $this->cachedBranchId = current_branch_id() ?? (auth()->user()?->branch_id);
+            $this->branchIdResolved = true;
         }
-        $this->_branchId = current_branch_id() ?? (auth()->user()?->branch_id);
-        return $this->_branchId;
+
+        return $this->cachedBranchId;
     }
 
     public function created(Model $model): void
@@ -25,9 +30,9 @@ class AuditObserver
             'table_name' => $model->getTable(),
             'record_id'  => $model->getKey(),
             'old_values' => null,
-            'new_values' => json_encode($model->getAttributes()),
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
+            'new_values' => $model->getAttributes(),
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent(),
         ]);
     }
 
@@ -39,10 +44,10 @@ class AuditObserver
             'action'     => 'updated',
             'table_name' => $model->getTable(),
             'record_id'  => $model->getKey(),
-            'old_values' => json_encode($model->getOriginal()),
-            'new_values' => json_encode($model->getChanges()),
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
+            'old_values' => $model->getOriginal(),
+            'new_values' => $model->getChanges(),
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent(),
         ]);
     }
 
@@ -54,10 +59,10 @@ class AuditObserver
             'action'     => 'deleted',
             'table_name' => $model->getTable(),
             'record_id'  => $model->getKey(),
-            'old_values' => json_encode($model->getAttributes()),
+            'old_values' => $model->getAttributes(),
             'new_values' => null,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent(),
         ]);
     }
 
@@ -70,9 +75,9 @@ class AuditObserver
             'table_name' => $model->getTable(),
             'record_id'  => $model->getKey(),
             'old_values' => null,
-            'new_values' => json_encode($model->getAttributes()),
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
+            'new_values' => $model->getAttributes(),
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent(),
         ]);
     }
 }

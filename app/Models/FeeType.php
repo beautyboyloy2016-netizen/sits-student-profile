@@ -12,7 +12,13 @@ class FeeType extends Model
 
     protected $table = 'fee_types';
 
-    protected $fillable = ['name', 'amount', 'status'];
+    protected $fillable = ['branch_id', 'name', 'amount', 'status'];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+    ];
+
+    public function branch() { return $this->belongsTo(Branch::class); }
 
     public function invoiceItems() { return $this->hasMany(StudentInvoiceItem::class); }
 

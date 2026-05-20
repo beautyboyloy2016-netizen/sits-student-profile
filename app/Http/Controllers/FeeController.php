@@ -22,7 +22,17 @@ class FeeController extends Controller
     public function feeTypes(Request $request)
     {
         if ($request->ajax()) {
-            $data = FeeType::latest();
+            $data = FeeType::query();
+
+            // Branch isolation
+            $branchId = current_branch_id();
+            if ($branchId) {
+                $data->where(function ($q) use ($branchId) {
+                    $q->where('branch_id', $branchId)->orWhereNull('branch_id');
+                });
+            }
+
+            $data->latest();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('amount_fmt', fn($r) => '$' . number_format($r->amount, 2))
@@ -55,6 +65,7 @@ class FeeController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
+        $validated['branch_id'] = current_branch_id();
         $feeType = FeeType::create($validated);
 
         if ($request->ajax() || $request->wantsJson()) {

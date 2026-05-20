@@ -314,6 +314,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/ar-aging', [ReportController::class, 'arAging'])->name('ar_aging');
         Route::get('/revenue', [ReportController::class, 'revenue'])->name('revenue');
         Route::get('/fee-statement', [ReportController::class, 'feeStatement'])->name('fee_statement');
+        Route::get('/student-report', [ReportController::class, 'studentReport'])->name('student_report');
+        Route::get('/payment-report', [ReportController::class, 'paymentReport'])->name('payment_report');
+        Route::get('/enrollment-report', [ReportController::class, 'enrollmentReport'])->name('enrollment_report');
+        Route::get('/class-report', [ReportController::class, 'classReport'])->name('class_report');
+        Route::get('/room-report', [ReportController::class, 'roomReport'])->name('room_report');
+        Route::get('/user-report', [ReportController::class, 'userReport'])->name('user_report');
+        Route::get('/audit-log-report', [ReportController::class, 'auditLogReport'])->name('audit_log_report');
+        Route::get('/student-card-report', [ReportController::class, 'studentCardReport'])->name('student_card_report');
+        Route::get('/certificate-report', [ReportController::class, 'certificateReport'])->name('certificate_report');
+        Route::get('/diploma-report', [ReportController::class, 'diplomaReport'])->name('diploma_report');
     });
 
     // File Protection

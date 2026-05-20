@@ -14,6 +14,11 @@ class Shift extends Model
 
     protected $fillable = ['name', 'start_time', 'end_time', 'status'];
 
+    protected $casts = [
+        'start_time' => 'datetime:H:i',
+        'end_time'   => 'datetime:H:i',
+    ];
+
     public function classes() { return $this->hasMany(ClassModel::class); }
 
 

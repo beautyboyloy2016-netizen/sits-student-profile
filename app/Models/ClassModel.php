@@ -14,6 +14,11 @@ class ClassModel extends Model
 
     protected $fillable = ['branch_id', 'class_code', 'course_id', 'level_id', 'academic_year_id', 'shift_id', 'teacher_id', 'room_id', 'start_date', 'end_date', 'status'];
 
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date'   => 'date',
+    ];
+
     public function branch() { return $this->belongsTo(Branch::class); }
 
     public function course() { return $this->belongsTo(Course::class); }

@@ -14,6 +14,11 @@ class Room extends Model
 
     protected $fillable = ['building_id', 'room_no', 'room_type', 'capacity', 'monthly_price', 'status'];
 
+    protected $casts = [
+        'capacity'      => 'integer',
+        'monthly_price' => 'decimal:2',
+    ];
+
     public function building() { return $this->belongsTo(Building::class); }
 
 

@@ -12,6 +12,7 @@ use App\Models\Room;
 use App\Http\Requests\ClassRoom\StoreClassRequest;
 use App\Http\Requests\ClassRoom\UpdateClassRequest;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class ClassController extends Controller
@@ -70,8 +71,13 @@ class ClassController extends Controller
 
     public function store(StoreClassRequest $request)
     {
+        $branchId = current_branch_id();
+
         $validated = $request->validate([
-            'class_code' => 'required|string|unique:classes',
+            'class_code' => [
+                'required', 'string', 'max:255',
+                Rule::unique('classes')->where(fn ($q) => $q->where('branch_id', $branchId)),
+            ],
             'course_id' => 'required|exists:courses,id',
             'level_id' => 'nullable|exists:levels,id',
             'academic_year_id' => 'nullable|exists:academic_years,id',
@@ -83,7 +89,7 @@ class ClassController extends Controller
             'status' => 'required|in:active,completed,cancelled',
         ]);
 
-        $validated['branch_id'] = current_branch_id();
+        $validated['branch_id'] = $branchId;
         ClassModel::create($validated);
         flash()->success('Class created successfully.');
         return redirect()->route('classes.index');
@@ -103,8 +109,15 @@ class ClassController extends Controller
 
     public function update(UpdateClassRequest $request, ClassModel $class)
     {
+        $branchId = $class->branch_id ?? current_branch_id();
+
         $validated = $request->validate([
-            'class_code' => 'required|string|unique:classes,class_code,' . $class->id,
+            'class_code' => [
+                'required', 'string', 'max:255',
+                Rule::unique('classes')
+                    ->where(fn ($q) => $q->where('branch_id', $branchId))
+                    ->ignore($class->id),
+            ],
             'course_id' => 'required|exists:courses,id',
             'level_id' => 'nullable|exists:levels,id',
             'academic_year_id' => 'nullable|exists:academic_years,id',

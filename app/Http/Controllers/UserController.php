@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Branch;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -40,7 +42,8 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
-        return view('admin.users.create', compact('roles'));
+        $branches = Branch::orderBy('sort_order')->get();
+        return view('admin.users.create', compact('roles', 'branches'));
     }
 
     public function store(StoreUserRequest $request)
@@ -51,20 +54,35 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:50|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'status' => 'required|in:active,inactive,blocked',
+            'branch_id' => 'nullable|exists:branches,id',
+            'photo' => 'nullable|image|max:2048',
             'role_ids' => 'nullable|array',
             'role_ids.*' => 'exists:roles,id',
+            'branch_ids' => 'nullable|array',
+            'branch_ids.*' => 'exists:branches,id',
         ]);
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('users/photos', 'public');
+        }
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'] ?? null,
+            'photo' => $photoPath,
             'password' => Hash::make($validated['password']),
             'status' => $validated['status'],
+            'branch_id' => $validated['branch_id'] ?? null,
         ]);
 
         if (!empty($validated['role_ids'])) {
             $user->roles()->attach($validated['role_ids']);
+        }
+
+        if (!empty($validated['branch_ids'])) {
+            $user->branches()->attach($validated['branch_ids']);
         }
 
         flash()->success('User created successfully.');
@@ -74,8 +92,9 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        $user->load('roles');
-        return view('admin.users.edit', compact('user', 'roles'));
+        $branches = Branch::orderBy('sort_order')->get();
+        $user->load('roles', 'branches');
+        return view('admin.users.edit', compact('user', 'roles', 'branches'));
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -86,8 +105,12 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:50|unique:users,phone,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'status' => 'required|in:active,inactive,blocked',
+            'branch_id' => 'nullable|exists:branches,id',
+            'photo' => 'nullable|image|max:2048',
             'role_ids' => 'nullable|array',
             'role_ids.*' => 'exists:roles,id',
+            'branch_ids' => 'nullable|array',
+            'branch_ids.*' => 'exists:branches,id',
         ]);
 
         $data = [
@@ -95,7 +118,15 @@ class UserController extends Controller
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'] ?? null,
             'status' => $validated['status'],
+            'branch_id' => $validated['branch_id'] ?? null,
         ];
+
+        if ($request->hasFile('photo')) {
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $data['photo'] = $request->file('photo')->store('users/photos', 'public');
+        }
 
         if (!empty($validated['password'])) {
             $data['password'] = Hash::make($validated['password']);
@@ -103,6 +134,7 @@ class UserController extends Controller
 
         $user->update($data);
         $user->roles()->sync($validated['role_ids'] ?? []);
+        $user->branches()->sync($validated['branch_ids'] ?? []);
 
         flash()->success('User updated successfully.');
         return redirect()->route('users.index');

@@ -14,6 +14,10 @@ class Student extends Model
 
     protected $fillable = ['branch_id', 'student_code', 'khmer_name', 'latin_name', 'gender_id', 'date_of_birth', 'birth_place_id', 'current_address_id', 'phone', 'email', 'photo_path', 'status', 'note', 'created_by', 'updated_by'];
 
+    protected $casts = [
+        'date_of_birth' => 'date',
+    ];
+
     public function branch() { return $this->belongsTo(Branch::class); }
 
     public function gender() { return $this->belongsTo(Gender::class); }

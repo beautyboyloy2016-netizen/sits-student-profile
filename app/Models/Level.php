@@ -14,6 +14,10 @@ class Level extends Model
 
     protected $fillable = ['course_id', 'name', 'sort_order'];
 
+    protected $casts = [
+        'sort_order' => 'integer',
+    ];
+
     public function course() { return $this->belongsTo(Course::class); }
 
 

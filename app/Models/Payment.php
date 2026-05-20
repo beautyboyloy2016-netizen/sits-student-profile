@@ -14,6 +14,11 @@ class Payment extends Model
 
     protected $fillable = ['branch_id', 'payment_no', 'invoice_id', 'student_id', 'payment_date', 'amount', 'payment_method', 'received_by', 'note'];
 
+    protected $casts = [
+        'payment_date' => 'date',
+        'amount'       => 'decimal:2',
+    ];
+
     public function branch() { return $this->belongsTo(Branch::class); }
 
     public function student() { return $this->belongsTo(Student::class); }
